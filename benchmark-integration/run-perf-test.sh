@@ -110,13 +110,25 @@ function stop_server {
 # and a final line of the average requests/second
 function test_endpoint {
     url=$1
-    # warmup
-    wrk -c $test_num_connections -t$test_num_threads -d ${test_warmup_seconds}s $url >/dev/null
 
-    # run test
-    wrk_results=/tmp/wrk_results.`date +%s`
-    wrk -c $test_num_connections -t$test_num_threads -d ${test_time_seconds}s $url > $wrk_results
-    echo $wrk_results
+    if [[ $url == *"payload"* ]]; then
+       # warmup
+      wrk -s ./payload.lua -c $test_num_connections -t$test_num_threads -d ${test_warmup_seconds}s $url >/dev/null
+
+      # run test
+      wrk_results=/tmp/wrk_results.`date +%s`
+      wrk -s ./payload.lua -c $test_num_connections -t$test_num_threads -d ${test_time_seconds}s $url > $wrk_results
+      echo $wrk_results
+
+    else  
+      # warmup
+      wrk -c $test_num_connections -t$test_num_threads -d ${test_warmup_seconds}s $url >/dev/null
+
+      # run test
+      wrk_results=/tmp/wrk_results.`date +%s`
+      wrk -c $test_num_connections -t$test_num_threads -d ${test_time_seconds}s $url > $wrk_results
+      echo $wrk_results
+    fi  
 }
 
 

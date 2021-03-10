@@ -22,6 +22,7 @@ public class JettyPerftest {
 
   private static final int PORT = 8080;
   private static final String PATH = "/work";
+  private static final String PATH_POST = "/payload";
   private static final Server jettyServer = new Server(PORT);
   private static final ServletContextHandler servletContext = new ServletContextHandler();
 
@@ -29,6 +30,7 @@ public class JettyPerftest {
 
   public static void main(String[] args) throws Exception {
     servletContext.addServlet(PerfServlet.class, PATH);
+    servletContext.addServlet(PayloadServlet.class, PATH_POST);
     jettyServer.setHandler(servletContext);
     jettyServer.start();
 
@@ -79,4 +81,27 @@ public class JettyPerftest {
       }
     }
   }
+
+  @WebServlet
+  public static class PayloadServlet extends HttpServlet {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws IOException {
+      if (request.getParameter("error") != null) {
+        throw new RuntimeException("some sync error");
+      }
+      String name = request.getParameter("name");
+      String designation = request.getParameter("designation");
+      String company = request.getParameter("company");
+      String workVal = request.getParameter("workTimeMillis");
+      long workTimeMillis = 0L;
+      if (null != workVal) {
+        workTimeMillis = Long.parseLong(workVal);
+      }
+      Worker.doWork(workTimeMillis);
+
+      String responseOutput = name + " is a " + designation + " in " + company;
+      response.getWriter().print(responseOutput);
+    }
+  }  
 }
