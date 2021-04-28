@@ -24,11 +24,6 @@ public class Worker {
         span.setAttribute("info", "interesting stuff");
         span.setAttribute("additionalInfo", "interesting stuff");
       }
-
-      long doneTimestamp = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(workTimeMillis);
-      while (System.nanoTime() < doneTimestamp) {
-        // busy-wait to simulate work
-      }
       span.end();
     }
   }
