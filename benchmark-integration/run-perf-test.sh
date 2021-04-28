@@ -47,7 +47,7 @@ function start_server {
 
     if [ "$server_type" = "jar" ]; then
       echo "starting server: java $javaagent_arg -jar $server_package"
-      { /usr/bin/time -l java $javaagent_arg -Xms256m -Xmx256m -jar $server_package ; } 2> $server_output  &
+      { /usr/bin/time -l java $javaagent_arg -Xms1024m -Xmx1024m -jar $server_package ; } 2> $server_output  &
     else
       # make a temp directory to hold the unzipped server
       unzip_temp=`mktemp -d`
@@ -110,13 +110,25 @@ function stop_server {
 # and a final line of the average requests/second
 function test_endpoint {
     url=$1
-    # warmup
-    wrk -c $test_num_connections -t$test_num_threads -d ${test_warmup_seconds}s $url >/dev/null
 
-    # run test
-    wrk_results=/tmp/wrk_results.`date +%s`
-    wrk -c $test_num_connections -t$test_num_threads -d ${test_time_seconds}s $url > $wrk_results
-    echo $wrk_results
+    if [[ $url == *"payload"* ]]; then
+       # warmup
+      wrk2 -s ./payload.lua -c $test_num_connections -t$test_num_threads -d ${test_warmup_seconds}s -R200 -L $url >/dev/null
+
+      # run test
+      wrk_results=/tmp/wrk_results.`date +%s`
+      wrk2 -s ./payload.lua -c $test_num_connections -t$test_num_threads -d ${test_time_seconds}s -R200 -L $url > $wrk_results
+      echo $wrk_results
+
+    else
+      # warmup
+      wrk2 -c $test_num_connections -t$test_num_threads -d ${test_warmup_seconds}s -R5000 -L $url >/dev/null
+
+      # run test
+      wrk_results=/tmp/wrk_results.`date +%s`
+      wrk2 -c $test_num_connections -t$test_num_threads -d ${test_time_seconds}s -R5000 -L $url > $wrk_results
+      echo $wrk_results
+    fi
 }
 
 

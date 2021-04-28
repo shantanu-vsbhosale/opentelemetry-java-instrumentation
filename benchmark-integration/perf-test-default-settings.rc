@@ -9,9 +9,6 @@ test_num_threads=5
 
 # endpoints to test
 declare -A endpoints
-endpoints['<1MS']='http://localhost:8080/work'
 endpoints['1MS']='http://localhost:8080/work?workTimeMillis=1'
-endpoints['2MS']='http://localhost:8080/work?workTimeMillis=2'
-endpoints['5MS']='http://localhost:8080/work?workTimeMillis=5'
-endpoints['10MS']='http://localhost:8080/work?workTimeMillis=10'
-test_order=( '<1MS' '1MS' '2MS' '5MS' '10MS' )
+endpoints['POST_req']='http://localhost:8080/payload'
+test_order=( '1MS' 'POST_req')

@@ -60,23 +60,32 @@ public class JettyPerftest {
       if (null != workVal) {
         workTimeMillis = Long.parseLong(workVal);
       }
-      scheduleWork(workTimeMillis);
+      Worker.doWork(workTimeMillis);
       response.getWriter().print("Did " + workTimeMillis + "ms of work.");
     }
+  }
 
-    private void scheduleWork(long workTimeMillis) {
-      Span span = tracer.spanBuilder("work").startSpan();
-      try (Scope scope = span.makeCurrent()) {
-        if (span != null) {
-          span.setAttribute("work-time", workTimeMillis);
-          span.setAttribute("info", "interesting stuff");
-          span.setAttribute("additionalInfo", "interesting stuff");
+    @WebServlet
+    public static class PayloadServlet extends HttpServlet {
+      @Override
+      protected void doPost(HttpServletRequest request, HttpServletResponse response)
+          throws IOException {
+        if (request.getParameter("error") != null) {
+          throw new RuntimeException("some sync error");
         }
-        if (workTimeMillis > 0) {
-          Worker.doWork(workTimeMillis);
+        String name = request.getParameter("name");
+        String designation = request.getParameter("designation");
+        String company = request.getParameter("company");
+        String workVal = request.getParameter("workTimeMillis");
+        String bigKey = request.getParameter("bigKey");
+        long workTimeMillis = 0L;
+        if (null != workVal) {
+          workTimeMillis = Long.parseLong(workVal);
         }
-        span.end();
+        
+        Worker.doWork(workTimeMillis);
+        String responseOutput = name + " is a " + designation + " in " + company;
+        response.getWriter().print(responseOutput);
       }
-    }
   }
 }
