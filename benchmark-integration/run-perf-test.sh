@@ -113,20 +113,20 @@ function test_endpoint {
 
     if [[ $url == *"payload"* ]]; then
        # warmup
-      wrk2 -s ./payload.lua -c $test_num_connections -t$test_num_threads -d ${test_warmup_seconds}s -R200 -L $url >/dev/null
+      wrk -s ./payload.lua -c $test_num_connections -t$test_num_threads -d ${test_warmup_seconds}s -R200 -L $url >/dev/null
 
       # run test
       wrk_results=/tmp/wrk_results.`date +%s`
-      wrk2 -s ./payload.lua -c $test_num_connections -t$test_num_threads -d ${test_time_seconds}s -R200 -L $url > $wrk_results
+      wrk -s ./payload.lua -c $test_num_connections -t$test_num_threads -d ${test_time_seconds}s -R200 -L $url > $wrk_results
       echo $wrk_results
 
     else
       # warmup
-      wrk2 -c $test_num_connections -t$test_num_threads -d ${test_warmup_seconds}s -R5000 -L $url >/dev/null
+      wrk -c $test_num_connections -t$test_num_threads -d ${test_warmup_seconds}s -R5000 -L $url >/dev/null
 
       # run test
       wrk_results=/tmp/wrk_results.`date +%s`
-      wrk2 -c $test_num_connections -t$test_num_threads -d ${test_time_seconds}s -R5000 -L $url > $wrk_results
+      wrk -c $test_num_connections -t$test_num_threads -d ${test_time_seconds}s -R5000 -L $url > $wrk_results
       echo $wrk_results
     fi
 }
