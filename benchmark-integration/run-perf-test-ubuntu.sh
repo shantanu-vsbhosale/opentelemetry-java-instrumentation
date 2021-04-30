@@ -85,7 +85,7 @@ function start_server {
 
     # Block until server is up
     #until nc -z localhost 8080; do
-    sleep 30s
+    sleep 10s
     #done
     server_pid=$(lsof -i tcp:8080 | awk '$8 == "TCP" { print $2 }' | uniq)
     echo "server $server_pid started"
